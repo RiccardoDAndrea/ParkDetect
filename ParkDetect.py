@@ -116,7 +116,7 @@ while cap.isOpened():
         break
 
     # Auto-Klassifikator laden
-    car_Classifier = cv2.CascadeClassifier("Scripts/models/haarcascade_car.xml")
+    car_Classifier = cv2.CascadeClassifier("models/haarcascade_car.xml")
     detected_cars = car_Classifier.detectMultiScale(frame, minSize=(20, 20))
 
     # Autos auf dem Originalbild markieren
