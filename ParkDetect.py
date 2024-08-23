@@ -17,11 +17,6 @@ import matplotlib.pyplot as plt
 #### 2.3. Die Autos müssen dann markiert werden das sie nicht auf dem Parkplatz sind
 
 
-
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-
 # Bild einlesen
 # path_without_cars = "Scripts/data/Pictures/Parked cars/Cars-parked-in-parking-lot.jpg"
 # img = cv2.imread(filename=path_without_cars)
@@ -97,7 +92,7 @@ import matplotlib.pyplot as plt
 
 
 # Video öffnen
-cap = cv2.VideoCapture('Scripts/data/Pictures/Parked cars/3858833-uhd_3840_2160_24fps.mp4')
+cap = cv2.VideoCapture('/Volumes/RICCA_SSD/Pictures/Parking Cars/3858833-uhd_3840_2160_24fps.mp4')
 
 # Überprüfen, ob das Video geöffnet wurde
 if not cap.isOpened():
