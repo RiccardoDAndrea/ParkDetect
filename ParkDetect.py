@@ -22,23 +22,23 @@ import numpy as np
 EMPTY = True
 NOT_EMPTY = False
 
-#MODEL = pickle.load(open("model.p", "rb"))
+MODEL = pickle.load(open("model.p", "rb"))
 
 
-# def empty_or_not(spot_bgr):
+def empty_or_not(spot_bgr):
 
-#     flat_data = []
+    flat_data = []
 
-#     img_resized = resize(spot_bgr, (15, 15, 3))
-#     flat_data.append(img_resized.flatten())
-#     flat_data = np.array(flat_data)
+    img_resized = resize(spot_bgr, (15, 15, 3))
+    flat_data.append(img_resized.flatten())
+    flat_data = np.array(flat_data)
 
-#     y_output = MODEL.predict(flat_data)
+    y_output = MODEL.predict(flat_data)
 
-#     if y_output == 0:
-#         return EMPTY
-#     else:
-#         return NOT_EMPTY
+    if y_output == 0:
+        return EMPTY
+    else:
+        return NOT_EMPTY
 
 
 def get_parking_spots_bboxes(connected_components):
@@ -71,20 +71,38 @@ connected_components = cv2.connectedComponentsWithStats(mask, 4, cv2.CV_32S)
 
 
 spots = get_parking_spots_bboxes(connected_components)
-print(spots[0])
 
-
+spots_status = [None for j in spots]
+frame_nmr = 0
 ret = True
+step = 30
+
 while ret:
     ret, frame = cap.read()
 
-    for spot in spots:
-        x1, y1, w, h = spot
-        frame = cv2.rectangle(frame, (x1, y1), (x1 + w, y1 + h), (0, 255, 0))
+    if frame_nmr % step == 0:
+
+        for spot_index, spot in enumerate(spots):
+            x1, y1, w, h = spot
+
+            spot_crop = frame[y1:y1 + h, x1:x1+ w,:]
+
+            spot_status = empty_or_not(spot_crop)
+            spots_status[spot_index] = spot_status
+
+    for spot_indx, spot in enumerate(spots):
+        spot_status = spots_status[spot_indx]
+        x1, y1, w, h = spots[spot_indx]
+
+        if spot_status == EMPTY:
+            frame = cv2.rectangle(frame, (x1, y1), (x1 + w, y1 + h), (0, 255, 0),2)
+        else:
+            frame = cv2.rectangle(frame, (x1, y1), (x1 + w, y1 + h), (0, 0, 255),2)
                       
     cv2.imshow("Frame", frame)
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
-    
+    frame_nmr += 1
+
 cap.release()
 cv2.destroyAllWindows()
