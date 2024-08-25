@@ -61,8 +61,8 @@ def get_parking_spots_bboxes(connected_components):
 
 
 # Bild einlesen
-mask = "/Volumes/RICCA_SSD/Pictures/mask for Parking Spot.png"
-video_path = "/Volumes/RICCA_SSD/Pictures/Cropped_parking_spot.mp4"
+mask = "/Volumes/RICCA_SSD/Pictures/ParkDetect/mask for Parking Spot.png"
+video_path = "/Volumes/RICCA_SSD/Pictures/ParkDetect/Cropped_parking_spot.mp4"
 
 mask = cv2.imread(mask, 0)
 cap = cv2.VideoCapture(video_path)
