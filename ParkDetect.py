@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
+from skimage.transform import resize
+import numpy as np
 #####
 ## Das Ziel dieses Skript wird in zwei aufgaben unterteilt die erreicht werden sollen
 ## 1. Erkenne die Parkplätze auf dem Bild
@@ -16,139 +19,72 @@ import matplotlib.pyplot as plt
 #### 2.2. Die Autos müssen dann markiert werden das sie auf dem Parkplatz sind
 #### 2.3. Die Autos müssen dann markiert werden das sie nicht auf dem Parkplatz sind
 
+EMPTY = True
+NOT_EMPTY = False
+
+#MODEL = pickle.load(open("model.p", "rb"))
+
+
+# def empty_or_not(spot_bgr):
+
+#     flat_data = []
+
+#     img_resized = resize(spot_bgr, (15, 15, 3))
+#     flat_data.append(img_resized.flatten())
+#     flat_data = np.array(flat_data)
+
+#     y_output = MODEL.predict(flat_data)
+
+#     if y_output == 0:
+#         return EMPTY
+#     else:
+#         return NOT_EMPTY
+
+
+def get_parking_spots_bboxes(connected_components):
+    (totalLabels, label_ids, values, centroid) = connected_components
+
+    slots = []
+    coef = 1
+    for i in range(1, totalLabels):
+
+        # Now extract the coordinate points
+        x1 = int(values[i, cv2.CC_STAT_LEFT] * coef)
+        y1 = int(values[i, cv2.CC_STAT_TOP] * coef)
+        w = int(values[i, cv2.CC_STAT_WIDTH] * coef)
+        h = int(values[i, cv2.CC_STAT_HEIGHT] * coef)
+
+        slots.append([x1, y1, w, h])
+
+    return slots
+
+
 
 # Bild einlesen
-# path_without_cars = "Scripts/data/Pictures/Parked cars/Cars-parked-in-parking-lot.jpg"
-# img = cv2.imread(filename=path_without_cars)
+mask = "/Volumes/RICCA_SSD/Pictures/mask for Parking Spot.png"
+video_path = "/Volumes/RICCA_SSD/Pictures/Cropped_parking_spot.mp4"
 
-# # Graustufenbild erstellen
-# gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+mask = cv2.imread(mask, 0)
+cap = cv2.VideoCapture(video_path)
 
-# # Bild glätten
-# kernel_size = 5
-# blur_gray = cv2.GaussianBlur(gray, (kernel_size, kernel_size), 0)
-
-# # Kanten mit Canny-Detektor finden
-# low_threshold = 50
-# high_threshold = 150
-# edges = cv2.Canny(blur_gray, low_threshold, high_threshold)
-
-# # Hough-Transformation Parameter
-# rho = 1
-# theta = np.pi / 180
-# threshold = 15
-# min_line_length = 50
-# max_line_gap = 20
-# line_image = np.copy(img) * 0
-
-# # Hough-Transformation anwenden
-# lines = cv2.HoughLinesP(edges, rho, theta, threshold, np.array([]),
-#                         min_line_length, max_line_gap)
+connected_components = cv2.connectedComponentsWithStats(mask, 4, cv2.CV_32S)
 
 
-
-# for line in lines:
-#     for x1,y1,x2,y2 in line:
-#         cv2.line(line_image,(x1,y1),(x2,y2),(255,0,0),5)
-
-# # Kombinieren der Linien mit dem Originalbild
-# lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
-
-# Ergebnis anzeigen
-# plt.subplot(1, 1, 1)
-# plt.imshow(lines_edges)
-# plt.show()
+spots = get_parking_spots_bboxes(connected_components)
+print(spots[0])
 
 
-
-# # Auto-Klassifikator laden
-# car_Classifier = cv2.CascadeClassifier("Scripts/models/haarcascade_car.xml")
-# detected_cars = car_Classifier.detectMultiScale(img, minSize=(20, 20))
-# print(detected_cars)
-# # Autos auf dem kombinierten Bild markieren
-# img_rgb = cv2.cvtColor(lines_edges, cv2.COLOR_BGR2RGB)
-
-# amount = len(detected_cars)
-# print(f"Anzahl der Autos: {amount}")
-
-
-# if amount != 0:
-#     for (x, y, width, height) in detected_cars:
-#         offset = 10             # die abstand der Linien in dem Quadrat
-#         thickness = 5
-#         cv2.line(img_rgb, (x, y), (x + width // 2 - offset, y), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x + width // 2 + offset, y), (x + width, y), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x, y + height), (x + width // 2 - offset, y + height), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x + width // 2 + offset, y + height), (x + width, y + height), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x, y), (x, y + height // 2 - offset), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x, y + height // 2 + offset), (x, y + height), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x + width, y), (x + width, y + height // 2 - offset), (0, 255, 0), thickness)
-#         cv2.line(img_rgb, (x + width, y + height // 2 + offset), (x + width, y + height), (0, 255, 0), thickness)
-
-# # Ergebnis anzeigen
-# plt.subplot(1, 1, 1)
-# plt.imshow(img_rgb)
-# plt.show()
-
-
-# Video öffnen
-cap = cv2.VideoCapture('/Volumes/RICCA_SSD/Pictures/Parking Cars/3858833-uhd_3840_2160_24fps.mp4')
-
-# Überprüfen, ob das Video geöffnet wurde
-if not cap.isOpened():
-    print("Fehler beim Öffnen der Videodatei.")
-    exit()
-
-# Video öffnen
-
-# Überprüfen, ob das Video geöffnet wurde
-if not cap.isOpened():
-    print("Fehler beim Öffnen der Videodatei.")
-    exit()
-
-while cap.isOpened():
-    # Lesen eines Frames aus dem Video
+ret = True
+while ret:
     ret, frame = cap.read()
+
+    for spot in spots:
+        x1, y1, w, h = spot
+        frame = cv2.rectangle(frame, (x1, y1), (x1 + w, y1 + h), (0, 255, 0))
+                      
+    cv2.imshow("Frame", frame)
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+        break
     
-    # Überprüfen, ob der Frame erfolgreich gelesen wurde
-    if not ret:
-        print("Fehler beim Lesen des Frames oder Ende des Videos erreicht.")
-        break
-
-    # Auto-Klassifikator laden
-    car_Classifier = cv2.CascadeClassifier("models/haarcascade_car.xml")
-    detected_cars = car_Classifier.detectMultiScale(frame, minSize=(20, 20))
-
-    # Autos auf dem Originalbild markieren
-    img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    amount = len(detected_cars)
-    print(f"Anzahl der Autos: {amount}")
-
-    if amount != 0:
-        for (x, y, width, height) in detected_cars:
-            offset = 10  # Abstand der Linien in dem Quadrat
-            thickness = 5
-
-            # Linien oben und unten
-            cv2.line(img_rgb, (x, y), (x + width // 2 - offset, y), (0, 255, 0), thickness)
-            cv2.line(img_rgb, (x + width // 2 + offset, y), (x + width, y), (0, 255, 0), thickness)
-            cv2.line(img_rgb, (x, y + height), (x + width // 2 - offset, y + height), (0, 255, 0), thickness)
-            cv2.line(img_rgb, (x + width // 2 + offset, y + height), (x + width, y + height), (0, 255, 0), thickness)
-
-            # Linien links und rechts
-            cv2.line(img_rgb, (x, y), (x, y + height // 2 - offset), (0, 255, 0), thickness)
-            cv2.line(img_rgb, (x, y + height // 2 + offset), (x, y + height), (0, 255, 0), thickness)
-            cv2.line(img_rgb, (x + width, y), (x + width, y + height // 2 - offset), (0, 255, 0), thickness)
-            cv2.line(img_rgb, (x + width, y + height // 2 + offset), (x + width, y + height), (0, 255, 0), thickness)
-
-    # Zeigen des Ergebnisses
-    cv2.imshow('Car Detection', img_rgb)
-
-    # Beenden bei Tastendruck 'q'
-    if cv2.waitKey(1) == ord('q'):
-        break
-
-# Video freigeben und Fenster schließen
 cap.release()
 cv2.destroyAllWindows()
