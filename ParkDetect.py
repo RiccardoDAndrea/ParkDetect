@@ -63,8 +63,8 @@ def calc_diff(im1, im2):
 
 
 # Bild einlesen
-mask = "/Volumes/RICCA_SSD/Pictures/ParkDetect/mask for Parking Spot.png"
-video_path = "/Volumes/RICCA_SSD/Pictures/ParkDetect/Cropped_parking_spot.mp4"
+mask = "/Volumes/RICCA_SSD/Pictures/ParkDetect/mask_complet_area.png"
+video_path = "/Volumes/RICCA_SSD/Pictures/ParkDetect/parking_spot_video.mp4"
 
 mask = cv2.imread(mask, 0)
 
@@ -122,15 +122,10 @@ while ret:
         else:
             frame = cv2.rectangle(frame, (x1, y1), (x1 + w, y1 + h), (0, 0, 255), 2)
 
-    cv2.rectangle(frame, (1,1), (1, 1), (0, 0, 0), -1)
-    cv2.putText(frame, 
-            'Available spots: {} / {}'.format(str(sum(spots_status)), str(len(spots_status))), 
-            (10, 30),  # Position des Texts (x, y)
-            cv2.FONT_HERSHEY_SIMPLEX, 
-            0.5,  # Kleinere Schriftgröße
-            (255, 255, 255),  # Textfarbe (Weiß)
-            1)  # Dünnere Schrift
-    
+    cv2.rectangle(frame, (80, 20), (550, 80), (0, 0, 0), -1)
+    cv2.putText(frame, 'Available spots: {} / {}'.format(str(sum(spots_status)), str(len(spots_status))), (100, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
     cv2.namedWindow('frame', cv2.WINDOW_NORMAL)
     cv2.imshow('frame', frame)
     if cv2.waitKey(25) & 0xFF == ord('q'):
