@@ -64,7 +64,7 @@ def calc_diff(im1, im2):
 
 # Bild einlesen
 mask = "/Volumes/RICCA_SSD/Pictures/ParkDetect/mask_complet_area.png"
-video_path = "/Volumes/RICCA_SSD/Pictures/ParkDetect/parking_spot_video.mp4"
+video_path = "/Volumes/RICCA_SSD/Pictures/ParkDetect/1920_1080.mp4"
 
 mask = cv2.imread(mask, 0)
 
